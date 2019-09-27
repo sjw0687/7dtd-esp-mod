@@ -2,7 +2,7 @@
 
 This is an ESP (or wallhack) mod for "7 days to die" game. This mod enables you to see zombies and dangerous animals through walls.
 
-In the upper right corner of a screen, it shows the number of enemies near the player, and their current activity
+In the upper left corner of a screen, it shows the number of enemies near the player, and their current activity
 (idle, investigating, or attacking) and state (flying or running). Also, the distance to the nearest enemy is shown.
 
 The color of off-screen enemy icon represents an enemey activity.
