@@ -11,6 +11,8 @@ The color of off-screen enemy icon represents an enemey activity.
 - yellow: investigating
 - red: attacking
 
+Gameplay video: https://www.youtube.com/watch?v=bcQz1a9svIw
+
 ## How to use
 
 This mod requires DMT (7 Days to Die Modding Tool). You can download it from [here](https://github.com/HAL-NINE-THOUSAND/DMT).
