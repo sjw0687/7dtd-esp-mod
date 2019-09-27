@@ -41,15 +41,16 @@ namespace SdtdEsp
             {
                 foreach (var material in renderer.materials)
                 {
-                    if (normalShader == null)
+                    if (normalShader == null && material.shader.name.Contains("Standard"))
                     {
-                        // It's not clear which shader would be chosen for recovery.
-                        // And only one shader is used for all materials.
                         normalShader = material.shader;
                     }
-                    material.shader = shader;
-                    material.SetColor("_FirstOutlineColor", Color.red);
-                    material.SetFloat("_FirstOutlineWidth", 0.015f);
+                    if (material.shader.name.Contains("Standard") || material.shader.name.Equals(wallhackShader.name))
+                    {
+                        material.shader = shader;
+                        material.SetColor("_FirstOutlineColor", Color.red);
+                        material.SetFloat("_FirstOutlineWidth", 0.015f);
+                    }
                 }
             }
             foreach (Transform transform in gameObject.transform)
@@ -95,7 +96,6 @@ namespace SdtdEsp
 
         void Start()
         {
-            //string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string assemblyPath = Assembly.GetExecutingAssembly().Location;
             string modPath = Path.Combine(assemblyPath, @"..\..");
             string resPath = Path.Combine(modPath, "Resources");
