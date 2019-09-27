@@ -11,7 +11,7 @@ namespace SdtdEsp
     {
         public const float distForCountingEnemies = 120f;
         public const float INF = 1234567890f;
-        public const string defaultMsg = "ENEMY INDICATOR ENABLED";
+        public const string defaultMsg = "ESP ENABLED";
 
         static GameObject go;
         static Shader wallhackShader;
