@@ -15,54 +15,12 @@ namespace SdtdEsp
         public const string defaultMsg = "ESP ENABLED";
 
         static GameObject go;
-        static Shader wallhackShader;
-        static Shader normalShader;
         static Entity player;
         static AIDirectorZombieManagementComponent aiDirector;
         public static ESP esp;
-        static Sprite[] sprites;
+        public static Asset asset;
 
         static double timeAfterTick = 0f;
-
-        static bool AreSpritesLoaded()
-        {
-            foreach (Sprite sprite in sprites)
-            {
-                if (sprite == null)
-                    return false;
-            }
-            return true;
-        }
-
-        static bool IsNormalShader(String shaderName)
-        {
-            return shaderName.StartsWith("Standard") || shaderName == "Autodesk Interactive";
-        }
-
-        static void ReplaceShaders(GameObject gameObject, Shader shader)
-        {
-            var renderer = gameObject.GetComponent<Renderer>();
-            if (renderer != null)
-            {
-                foreach (var material in renderer.materials)
-                {
-                    if (normalShader == null && IsNormalShader(material.shader.name))
-                    {
-                        normalShader = material.shader;
-                    }
-                    if (IsNormalShader(material.shader.name) || material.shader.name.Equals(wallhackShader.name))
-                    {
-                        material.shader = shader;
-                        material.SetColor("_FirstOutlineColor", Color.red);
-                        material.SetFloat("_FirstOutlineWidth", 0.015f);
-                    }
-                }
-            }
-            foreach (Transform transform in gameObject.transform)
-            {
-                ReplaceShaders(transform.gameObject, shader);
-            }
-        }
 
         static bool NameContains(String str, String key)
         {
@@ -99,23 +57,17 @@ namespace SdtdEsp
             return (enemy is EntityFlying);
         }
 
-        void Start()
+        static string GetAssetBundlePath()
         {
             string assemblyPath = Assembly.GetExecutingAssembly().Location;
             string modPath = Path.Combine(assemblyPath, @"..\..");
             string resPath = Path.Combine(modPath, "Resources");
-            string bundlePath = Path.Combine(resPath, "esp.unity3d");
-            Debug.Log("bundlePath: " + bundlePath);
+            return Path.Combine(resPath, "esp.unity3d");
+        }
 
-            var bundle = AssetBundle.LoadFromFile(bundlePath);
-            wallhackShader = bundle.LoadAsset<Shader>("WallhackShader.shader");
-            sprites = new Sprite[(int)EnemyIcon.ItemCount];
-            sprites[(int)EnemyIcon.Zombie] = bundle.LoadAsset<Sprite>("Zombie.png");
-            sprites[(int)EnemyIcon.Flying] = bundle.LoadAsset<Sprite>("Flying.png");
-            sprites[(int)EnemyIcon.Dog] = bundle.LoadAsset<Sprite>("Dog.png");
-            sprites[(int)EnemyIcon.Bear] = bundle.LoadAsset<Sprite>("Bear.png");
-            sprites[(int)EnemyIcon.Animal] = bundle.LoadAsset<Sprite>("Animal.png");
-            sprites[(int)EnemyIcon.Arrow] = bundle.LoadAsset<Sprite>("Arrow.png");
+        void Start()
+        {
+            asset = new Asset(GetAssetBundlePath());
 
             esp = new ESP();
             esp.Init();
@@ -130,7 +82,7 @@ namespace SdtdEsp
                 go.AddComponent<Patch>();
                 DontDestroyOnLoad(go);
 
-                Debug.Log(" Loading Patch: " + GetType().ToString());
+                Debug.Log("Loading Patch: " + GetType().ToString());
                 var harmony = HarmonyInstance.Create(GetType().ToString());
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
@@ -231,7 +183,7 @@ namespace SdtdEsp
                             new EnemyInfo(
                                 zs.Zombie.gameObject,
                                 targetColor,
-                                sprites[(int)iconNum],
+                                asset.GetSpirit(iconNum),
                                 iconNum == EnemyIcon.Arrow));
                     }
 
@@ -292,10 +244,9 @@ namespace SdtdEsp
         {
             static void Postfix(EntityEnemy _zombie)
             {
-                if (wallhackShader != null)
-                {
-                    ReplaceShaders(_zombie.gameObject, wallhackShader);
-                }
+                var zombieGameObj = _zombie.gameObject;
+                asset.GetNormalShader(zombieGameObj);
+                asset.ApplyWallhackShader(zombieGameObj);
             }
         }
 
@@ -323,8 +274,7 @@ namespace SdtdEsp
                 {
                     if (zombies.dict.ContainsKey(entityId))
                     {
-                        if (normalShader != null)
-                            ReplaceShaders(__instance.gameObject, normalShader);
+                        asset.ApplyNormalShader(__instance.gameObject);
                     }
                 }
             }
