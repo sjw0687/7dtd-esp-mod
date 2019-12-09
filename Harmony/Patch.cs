@@ -22,41 +22,6 @@ namespace SdtdEsp
 
         static double timeAfterTick = 0f;
 
-        static bool NameContains(String str, String key)
-        {
-            // TODO returns true only if the string contains a exact word
-            return str.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        static EnemyIcon GetIconNum(EntityEnemy enemy)
-        {
-            if (enemy is EntityFlying)
-                return EnemyIcon.Flying;
-            if (enemy is EntityZombieDog || NameContains(enemy.EntityName, "wolf"))
-                return EnemyIcon.Dog;
-            if (NameContains(enemy.EntityName, "bear"))
-                return EnemyIcon.Bear;
-            if (enemy is EntityEnemyAnimal || NameContains(enemy.EntityName, "snake"))
-                return EnemyIcon.Animal;
-            return EnemyIcon.Zombie;
-        }
-
-        static bool IsRunning(EntityEnemy enemy)
-        {
-            EnemyIcon iconNum;
-            if (enemy.IsRunning)
-                return true;
-            iconNum = GetIconNum(enemy);
-            if (iconNum == EnemyIcon.Dog || iconNum == EnemyIcon.Bear)
-                return true;
-            return false;
-        }
-
-        static bool IsFlying(EntityEnemy enemy)
-        {
-            return (enemy is EntityFlying);
-        }
-
         static string GetAssetBundlePath()
         {
             string assemblyPath = Assembly.GetExecutingAssembly().Location;
@@ -166,9 +131,9 @@ namespace SdtdEsp
                     // Is running or flying?
                     if (isAttacking || isInvestigating)
                     {
-                        if (IsFlying(zs.Zombie))
+                        if (EnemyState.IsFlying(zs.Zombie))
                             hasFlyer = true;
-                        if (IsRunning(zs.Zombie))
+                        if (EnemyState.IsRunning(zs.Zombie))
                             hasRunner = true;
                     }
 
@@ -177,7 +142,7 @@ namespace SdtdEsp
                     if (esp != null && !esp.targets.ContainsKey(zId))
                     {
 
-                        iconNum = GetIconNum(zs.Zombie);
+                        iconNum = EnemyState.GetIconNum(zs.Zombie);
                         esp.targets.Add(
                             zId,
                             new EnemyInfo(
