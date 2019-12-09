@@ -11,6 +11,7 @@ namespace SdtdEsp
     {
         public const float distForCountingEnemies = 120f;
         public const float INF = 1234567890f;
+        public const double timeIntervalUpdate = 0.5f;
         public const string defaultMsg = "ESP ENABLED";
 
         static GameObject go;
@@ -21,8 +22,7 @@ namespace SdtdEsp
         public static ESP esp;
         static Sprite[] sprites;
 
-        //static int zombieCnt = 0;
-        //static double nearestDist = INF;
+        static double timeAfterTick = 0f;
 
         static bool AreSpritesLoaded()
         {
@@ -143,6 +143,12 @@ namespace SdtdEsp
         {
             static void Postfix(AIDirectorZombieManagementComponent __instance, double _dt)
             {
+                timeAfterTick += _dt;
+                if (timeAfterTick < timeIntervalUpdate)
+                    return;
+                else
+                    timeAfterTick -= timeIntervalUpdate;
+
                 aiDirector = __instance;
                 var zombies = __instance.trackedZombies;
                 int zombieCnt = 0;
