@@ -69,8 +69,7 @@ namespace SdtdEsp
                     targetPosOnScreen,
                     distanceFromViewer,
                     pair.Value.color,
-                    pair.Value.icon,
-                    pair.Value.applyRotation);
+                    pair.Value.icon);
                 updatedIDs.Add(pair.Key);
             }
             List<int> panelsToRemove = new List<int>();
@@ -87,7 +86,7 @@ namespace SdtdEsp
             }
         }
 
-        void UpdateOffScreen(int id, Vector3 targetPosOnScreen, float distance, Color color, Sprite sprite, bool applyRotation)
+        void UpdateOffScreen(int id, Vector3 targetPosOnScreen, float distance, Color color, Sprite sprite)
         {
             //  Create a variable for the center position of the screen.
             Vector3 screenCenter = new Vector3(Screen.width, Screen.height, 0) / 2;
@@ -162,10 +161,6 @@ namespace SdtdEsp
             scaleDenom = scaleDenom * scaleDenom;
             float newScale = 1f / scaleDenom * 1.111f;
             panels[id].transform.localScale = new Vector2(newScale, newScale);
-
-            //  Assign new rotation
-            if (applyRotation)
-                panels[id].transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
         }
 
         float GetDistance(Vector3 PosA, Vector3 PosB)

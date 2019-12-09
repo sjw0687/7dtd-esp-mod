@@ -183,8 +183,7 @@ namespace SdtdEsp
                             new EnemyInfo(
                                 zs.Zombie.gameObject,
                                 targetColor,
-                                asset.GetSpirit(iconNum),
-                                iconNum == EnemyIcon.Arrow));
+                                asset.GetSpirit(iconNum)));
                     }
 
                     zombieCnt++;
