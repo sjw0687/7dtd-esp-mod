@@ -34,6 +34,11 @@ namespace SdtdEsp
             return true;
         }
 
+        static bool IsNormalShader(String shaderName)
+        {
+            return shaderName.StartsWith("Standard") || shaderName == "Autodesk Interactive";
+        }
+
         static void ReplaceShaders(GameObject gameObject, Shader shader)
         {
             var renderer = gameObject.GetComponent<Renderer>();
@@ -41,11 +46,11 @@ namespace SdtdEsp
             {
                 foreach (var material in renderer.materials)
                 {
-                    if (normalShader == null && material.shader.name.Contains("Standard"))
+                    if (normalShader == null && IsNormalShader(material.shader.name))
                     {
                         normalShader = material.shader;
                     }
-                    if (material.shader.name.Contains("Standard") || material.shader.name.Equals(wallhackShader.name))
+                    if (IsNormalShader(material.shader.name) || material.shader.name.Equals(wallhackShader.name))
                     {
                         material.shader = shader;
                         material.SetColor("_FirstOutlineColor", Color.red);
