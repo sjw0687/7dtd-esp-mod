@@ -4,34 +4,6 @@ using UnityEngine.UI;
 
 namespace SdtdEsp
 {
-
-    public enum EnemyIcon
-    {
-        Zombie,
-        Flying,
-        Dog,
-        Bear,
-        Animal,
-        Arrow,
-        ItemCount,
-    }
-
-    public struct EnemyInfo
-    {
-        public GameObject gameObject;
-        public Color color;
-        public Sprite icon;
-        public bool applyRotation;
-
-        public EnemyInfo(GameObject _gameObject, Color _color, Sprite _icon, bool _applyRotation)
-        {
-            gameObject = _gameObject;
-            color = _color;
-            icon = _icon;
-            applyRotation = _applyRotation;
-        }
-    }
-
     public class ESP
     {
         public const float targetColorAlpha = 0.65f;
@@ -235,5 +207,4 @@ namespace SdtdEsp
             return false;
         }
     }
-
 }
