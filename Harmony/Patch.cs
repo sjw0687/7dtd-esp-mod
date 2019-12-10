@@ -10,7 +10,6 @@ namespace SdtdEsp
     public class Patch : MonoBehaviour
     {
         public const float distForCountingEnemies = 120f;
-        public const float INF = 1234567890f;
         public const double timeIntervalUpdate = 0.5f;
         public const string defaultMsg = "ESP ENABLED";
 
@@ -66,98 +65,35 @@ namespace SdtdEsp
                 else
                     timeAfterTick -= timeIntervalUpdate;
 
-                aiDirector = __instance;
-                var zombies = __instance.trackedZombies;
-                int zombieCnt = 0;
-                float nearestDist = INF;
-                int attackingEnemeies = 0;
-                int investigatingEnemies = 0;
-                bool hasRunner = false;
-                bool hasFlyer = false;
+                if (esp == null)
+                    return;
+
+                var enemyState = new EnemyState(__instance, asset, player);
+                int zombieCnt = enemyState.Count();
+                int attackingEnemeies = enemyState.CountAttacking();
+                int investigatingEnemies = enemyState.CountInvestigating();
+                bool hasRunner = enemyState.HasRunner();
+                bool hasFlyer = enemyState.HasFlyer();
+                float nearestDist = enemyState.NearestDist();
                 string uiStr = "NO ENEMIES";
                 Color OrangeColor = new Color(1.0f, 0.647f, 0f);
                 Color uiStrColor = Color.green;
 
                 // Reset indicator targets before every updates
-                if (esp != null)
-                    esp.targets.Clear();
+                esp.targets.Clear();
 
-                for (int i = 0; i < zombies.Count; i++)
+                // Add targets to indicator
+                var enemyInfos = enemyState.GetEnemyInfos();
+                foreach (var info in enemyInfos)
                 {
-                    AIDirectorZombieState zs = zombies.list[i];
-                    float dist = INF;
-                    bool isSleeping;
-                    bool isAttacking = false;
-                    bool isInvestigating = false;
-                    Color targetColor;
-                    EnemyIcon iconNum;
-
-                    if (!zs.Zombie.IsAlive())
-                        continue;
-                    if (player != null)
-                    {
-                        dist = zs.Zombie.GetDistance(player);
-                    }
-
-                    if (dist > distForCountingEnemies)
-                        continue;
-                    if (dist < nearestDist)
-                    {
-                        nearestDist = dist;
-                    }
-
-                    // Set enemy state
-                    if (zs.Zombie.GetAttackTarget() == player)
-                        isAttacking = true;
-                    if (zs.Zombie.HasInvestigatePosition)
-                        isInvestigating = true;
-                    isSleeping = zs.Zombie.IsSleeping;
-
-                    // Set target color
-                    if (isAttacking)
-                        targetColor = Color.red;
-                    else if (isInvestigating)
-                        targetColor = Color.yellow;
-                    else if (isSleeping)
-                        targetColor = Color.gray;
-                    else
-                        targetColor = Color.white;
-
-                    if (isAttacking)
-                        attackingEnemeies++;
-                    if (isInvestigating)
-                        investigatingEnemies++;
-
-                    // Is running or flying?
-                    if (isAttacking || isInvestigating)
-                    {
-                        if (EnemyState.IsFlying(zs.Zombie))
-                            hasFlyer = true;
-                        if (EnemyState.IsRunning(zs.Zombie))
-                            hasRunner = true;
-                    }
-
-                    // Add target to indicator
-                    int zId = zs.Zombie.GetInstanceID();
-                    if (esp != null && !esp.targets.ContainsKey(zId))
-                    {
-
-                        iconNum = EnemyState.GetIconNum(zs.Zombie);
-                        esp.targets.Add(
-                            zId,
-                            new EnemyInfo(
-                                zs.Zombie.gameObject,
-                                targetColor,
-                                asset.GetSpirit(iconNum)));
-                    }
-
-                    zombieCnt++;
+                    int id = info.gameObject.GetInstanceID();
+                    if (!esp.targets.ContainsKey(id))
+                        esp.targets.Add(id, info);
                 }
 
                 // Update indicator
-                if(esp != null)
-                    esp.DoUpdate(Camera.main);
-                if (zombieCnt > 0 && nearestDist < INF)
+                esp.DoUpdate(Camera.main);
+                if (zombieCnt > 0 && nearestDist < EnemyState.INF_DIST)
                 {
                     uiStr = zombieCnt + " ENEMIES" + "  (" + nearestDist.ToString("0.00") + "M)";
                     uiStr += "\n";
@@ -196,8 +132,7 @@ namespace SdtdEsp
                     uiStr = "No player found. Exit to main menu and reload the game.";
                     uiStrColor = Color.white;
                 }
-                if (esp != null)
-                    esp.UpdateText(uiStr, uiStrColor);
+                esp.UpdateText(uiStr, uiStrColor);
             }
         }
 
@@ -232,15 +167,7 @@ namespace SdtdEsp
         {
             static void Postfix(EntityAlive __instance)
             {
-                int entityId = __instance.entityId;
-                var zombies = (aiDirector != null) ? aiDirector.trackedZombies : null;
-                if (zombies != null)
-                {
-                    if (zombies.dict.ContainsKey(entityId))
-                    {
-                        asset.ApplyNormalShader(__instance.gameObject);
-                    }
-                }
+                asset.ApplyNormalShader(__instance.gameObject);
             }
         }
 
